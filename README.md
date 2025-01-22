@@ -5,6 +5,7 @@
 - `secao02/` - Introdução ao FastAPI
 - `secao03/` - Entendendo os conceitos do FastAPI
 - `secao04/` - CRUD FastAPI e SQLAlchemy
+- `secao05/` - CRUD FastAPI e SQL Model
 
 
 ## ℹ️ Observação
