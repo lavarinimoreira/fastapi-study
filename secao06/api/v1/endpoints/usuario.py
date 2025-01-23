@@ -1,5 +1,6 @@
 from typing import List, Optional, Any
 from sqlalchemy.future import select
+from sqlalchemy.exc import IntegrityError
 
 
 from fastapi import APIRouter, status, Depends, HTTPException, Response
@@ -29,28 +30,33 @@ def get_logado(usuario_logado: UsuarioModel = Depends(get_current_user)):
 async def post_usuario(usuario: UsuarioSchemaCreate, db: AsyncSession = Depends(get_session)):
     novo_usuario: UsuarioModel = UsuarioModel(
         nome=usuario.nome, 
-        sobrenoma=usuario.sobrenome, 
+        sobrenome=usuario.sobrenome, 
         email=usuario.email, 
         senha=gerar_hash_senha(usuario.senha), 
         eh_admin=usuario.eh_admin)
     
     async with db as session:
-        session.add(novo_usuario)
-        await session.commit()
+        # Tratamento de erro para email duplicado
+        try:
+            session.add(novo_usuario)
+            await session.commit()
 
-        return novo_usuario
+            return novo_usuario
+        except IntegrityError:
+            raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="O email fornecido já está cadastrado no sistema.")
     
 
 
 # GET Usuarios
-@router.get('/', response_model=List[UsuarioSchemaBase]) # Sem os artigos
+@router.get('/', response_model=List[UsuarioSchemaBase])
 async def get_usuarios(db: AsyncSession = Depends(get_session)):
     async with db as session:
         query = select(UsuarioModel)
         result = await session.execute(query)
-        usuarios: List[UsuarioSchemaBase] = result.scalars().unique().all
+        usuarios = result.scalars().unique().all()  # Correção aplicada
 
-        return usuarios
+        return usuarios  # FastAPI converte automaticamente os modelos para os schemas
+
     
 
 # GET Usuario
@@ -140,5 +146,5 @@ async def login(
     # Retorna o token como resposta em formato JSON
     return JSONResponse(
         content={"acess_token": token, "token_type": "bearer"},  # Token de acesso no formato OAuth2
-        status_code=status.HTTP_200_OK  # Código HTTP 200 - OK (requisição bem-sucedida)
+        status_code=status.HTTP_200_OK
     )
