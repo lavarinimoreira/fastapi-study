@@ -1,4 +1,6 @@
 from typing import List, Optional, Any
+from sqlalchemy.future import select
+
 
 from fastapi import APIRouter, status, Depends, HTTPException, Response
 from fastapi.security import OAuth2PasswordRequestForm
