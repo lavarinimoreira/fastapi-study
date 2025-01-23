@@ -6,6 +6,7 @@
 - `secao03/` - Entendendo os conceitos do FastAPI
 - `secao04/` - CRUD FastAPI e SQLAlchemy
 - `secao05/` - CRUD FastAPI e SQL Model
+- `secao06/` - Segurança: Autenticação e Autorização com FastAPI
 
 
 ## ℹ️ Observação
